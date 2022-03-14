@@ -1,0 +1,30 @@
+{
+    "ir": {
+        "id": "ir",
+        "serviceName": "Incident Response",
+        "version": "1.10.0",
+        "baseURL": "https://url",
+        "path": "/services/ir"
+    },
+    "re": {
+        "id": "re",
+        "serviceName": "Report Engine",
+        "version": "1.10.0",
+        "baseURL": "https://url",
+        "path": "/services/re"
+    },
+    "ce": {
+        "id": "ce",
+        "serviceName": "Co-orelation Engine",
+        "version": "1.10.0",
+        "baseURL": "https://url",
+        "path": "/services/ce"
+    },
+    "ueba": {
+        "id": "ueba",
+        "serviceName": "UEBA",
+        "version": "1.10.0",
+        "baseURL": "https://url",
+        "path": "/services/ueba"
+    }
+}

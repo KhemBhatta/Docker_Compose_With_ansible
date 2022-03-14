@@ -1,0 +1,32 @@
+#!bin/bash
+echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+sysctl -w vm.max_map_count=262144
+echo "Property of Vairav"
+echo "Developed BY SIEM TEAM"
+read -p 'Enter the host IP: ' ip #used to change ip in nginx confg
+read -p 'Enter ip with port <IP:PORt>: ' url  #used to change the url of the routes.json file
+read -p 'Enter the elasticsearch password: ' pass #used to change password in kibana logstash wazuh
+read -p 'Enter the IR password: ' irpass #password for ir
+read -p 'Enter the rp password: ' rppass #password for rp
+read -p 'Enter the ir secret: ' irsecret #secret key for ir
+read -p 'Enter the rp secret: ' rpsecret #secret key for rp
+read -p 'Enter the Client Name: ' name #name of the client for ir and rp
+read -p 'Enter the Client Code: ' code #code of the client use for ir and rp
+
+sed -i s/client_name/$name/g ../config/ir/ir
+sed -i s/client_name/$name/g ../config/rp/rp
+sed -i s/client_code/$code/g ../config/ir/ir
+sed -i s/client_code/$code/g ../config/rp/rp
+sed -i s/secret/$pass/g ../config/kibana/kibana.yml 
+sed -i s/url/$url/g ../config/kibana/routes.json
+sed -i s/secret/$pass/g  ../config/logstash/config/logstash.yml
+sed -i s/ctmsip/$ip/g ../config/nginx/nginx.prod.conf
+sed -i s/irpass/$irpass/g ../config/ir/ir
+sed -i s/irsecret/$irsecret/g ../config/ir/ir
+sed -i s/rpsecret/$rpsecret/g ../config/rp/rp
+sed -i s/rppass/$rppass/g ../config/rp/rp
+sed -i s/secret/$pass/g ../master-compose.yml
+sed -i s/secret/$password/g ../config/msoff/o365beat.yml
+sed -i s/secret/$pass/g ../config/logstash/conf.d/*
+sed -i s/secret/$pass/g ./escontainerpass
+docker-compose --env-file ../.env -f ../master-compose.yml up -d

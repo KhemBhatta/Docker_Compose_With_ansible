@@ -1,0 +1,181 @@
+version: "3.5"
+services:
+####Elasticsearch#####
+
+  elasticsearch:
+    image: "elasticsearch:${version}"
+    container_name: "vairav-elasticsearch"
+    restart: on-failure
+    environment:
+      - cluster.name="elasticsearch"
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms17g -Xmx17g"
+    volumes:
+      - type: volume
+        source: elasticsearch-volume
+        target: /usr/share/elasticsearch/data
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    networks:
+      - elasticsearch-network
+    ports:
+      - "9200:9200"
+
+####Logstash#####
+
+  logstash:
+    image: "logstash:${version}"
+    container_name: "vairav-logstash"
+    volumes:
+      - '/var/log/ctms_backend/:/var/log/ctms_backend/'
+      - ./config/logstash/conf.d/:/etc/logstash/conf.d/
+      - ./config/logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./config/logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml
+    environment:
+      LS_JAVA_OPTS: "-Xmx2g -Xms2g"
+    network_mode: "host"
+    depends_on:
+      - elasticsearch
+
+####Kibana#####
+
+  kibana:
+   # image: "kibana:${version}"
+    image: "gitlab.vairav.net:5050/vairav-development-team/vairav-kibana/kibana-7.9.1/${client}:${kibana}"
+    container_name: "vairav-kibana"
+    restart: on-failure
+    volumes:
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml:Z
+      - ./config/kibana/routes.json:/usr/share/kibana/plugins/services/server/routes/routes.json:Z
+      - /opt/reverse-proxy-architecture/wazuh/config/wazuh.yml:/opt/kibana/optimize/wazuh/config/wazuh.yml
+    networks:
+      - nginx-network
+      - elasticsearch-network
+    depends_on:
+      - elasticsearch
+
+####NGINX#####
+
+  nginx-rp-uat:
+    container_name: vairav-nginx
+    image: nginx:1.20-alpine
+    volumes:
+      - ./config/nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:Z
+      - ./config/nginx/ssl.prod.pass:/etc/keys/ssl.pass:Z
+      - ./certificates/nginx.prod:/etc/nginx/certs:Z
+    ports:
+      - 443:443
+    depends_on:
+      - kibana
+    networks:
+      - nginx-network
+
+
+####Threat-Intel#####
+
+  threat-feed-automation:
+        #build: ./Dockerfile # Uncomment this line and comment line just below.
+    image: gitlab.vairav.net:5050/sakshyam/docker-images/threat-feed-automation:latest
+    container_name: vairav-threat
+    restart: on-failure
+    network_mode: host # share same network space as host
+    ports: 
+      - 8082:8082
+    depends_on:
+      - elasticsearch
+      - logstash
+
+#### O365 #####
+
+  o365:
+    image: gitlab.vairav.net:5050/ashwin.belbase/msoff:latest
+    container_name: vairav-o365
+    volumes:
+      - ./config/msoff/o365beat.yml:/etc/o365beat/o365beat.yml
+    network_mode: host
+    depends_on:
+      - elasticsearch
+      - logstash
+
+#### Wazuh #####
+
+  wazuh:
+    image: "wazuh/wazuh-odfe:${wazuh}"
+    hostname: vairav-wazuh
+    restart: always
+    ports:
+      - "1514:1514"
+      - "1515:1515"
+      - "514:514/udp"
+      - "55000:55000"
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=secret
+      - FILEBEAT_SSL_VERIFICATION_MODE=none
+    volumes:
+      - ossec_api_configuration:/var/ossec/api/configuration
+      - ossec_etc:/var/ossec/etc
+      - ossec_logs:/var/ossec/logs
+      - ossec_queue:/var/ossec/queue
+      - ossec_var_multigroups:/var/ossec/var/multigroups
+      - ossec_integrations:/var/ossec/integrations
+      - ossec_active_response:/var/ossec/active-response/bin
+      - ossec_agentless:/var/ossec/agentless
+      - ossec_wodles:/var/ossec/wodles
+      - filebeat_etc:/etc/filebeat
+      - filebeat_var:/var/lib/filebeat
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+
+    networks:
+        - elasticsearch-network
+
+#### RE #####
+
+  report-engine:
+    container_name: vairav-rp
+    image: "gitlab.vairav.net:5050/vairav-development-team/report-engine/poc-report-engine-backend:${rp}"
+    volumes:
+      - ./config/rp/rp:/app/.env
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+    networks:
+      - report-engine
+      - nginx-network
+      - elasticsearch-network
+
+#### IR #####
+
+  ir:
+    container_name: virav-ir
+    image: "gitlab.vairav.net:5050/vairav-development-team/incident-response/incident-response-back-end/develop:${ir}"
+    volumes:
+      - ./config/ir/ir:/app/.env
+    networks:
+      - IR
+      - nginx-network
+      - elasticsearch-network
+
+#### network and volumes configuration #####
+
+networks:
+  nginx-network:
+  elasticsearch-network:
+  logstash-network:
+  report-engine:
+  IR:
+
+volumes:
+  elasticsearch-volume:
+  ossec_api_configuration:
+  ossec_etc:
+  ossec_logs:
+  ossec_queue:
+  ossec_var_multigroups:
+  ossec_integrations:
+  ossec_active_response:
+  ossec_agentless:
+  ossec_wodles:
+  filebeat_etc:
+  filebeat_var:

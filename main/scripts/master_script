@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "#################################Asking for details and Pulling Images##########################################"
+bash creds
+
+
+echo "#################################Inserting the ES Password######################################################"
+./escontainerpass
+

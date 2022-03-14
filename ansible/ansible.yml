@@ -1,0 +1,20 @@
+---
+- name: Deplpoyment of CTMS
+  hosts: ctmsip
+  tasks:
+  - name: Copying the file to the server
+    copy:
+      src: ../main/
+      dest: /root/
+  - name: Deployment of docker,compose
+    command: 
+	chdir: /root/main/scripts/
+	cmd: bash install
+  - name: Extracting the docker images
+    command: 
+	chdir: /root/main/images/
+	cmd: bash docker
+  - name: Docker Compose UP
+    command:
+      chdir: /root/main/
+      cmd: docker-compose -f master-compose.yml up -d

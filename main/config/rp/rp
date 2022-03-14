@@ -1,0 +1,17 @@
+APP_ID=Report Engine
+HOST_IP=0.0.0.0
+PORT=7075
+LOG_LEVEL=info
+REQUEST_LIMIT=100kb
+SESSION_SECRET=mySecret
+
+OPENAPI_SPEC=/api/v1/spec
+OPENAPI_ENABLE_RESPONSE_VALIDATION=false
+
+CLIENT='client_name'
+CLIENT_CODE='client_code'
+ES_HOST=http://elasticsearch:9200
+ES_USERNAME=elastic
+ES_PASSWORD=rppass
+#API_Secret=b011070ac69e5f3e1f4ab80843617070
+API_Secret=rpsecret

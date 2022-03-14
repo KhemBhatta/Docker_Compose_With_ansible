@@ -1,0 +1,22 @@
+version: "3"
+
+services: 
+    database-service:
+        #build: ./Dockerfile # Uncomment this line and comment line just below.
+        image: gitlab.vairav.net:5050/sakshyam/docker-images/vairav-postgres:latest
+        container_name: postgresql-container
+        volumes:
+            # postgres-data dir is built on device and stores postgres data backup from docker 
+            - ./postgres-data:/var/lib/postgresql/data
+        network_mode: host # share same network space as host
+        ports: 
+            - 5432:5432
+    
+    ce-service:
+        #build: ./Dockerfile # Uncomment this line and comment line just below.
+        image: gitlab.vairav.net:5050/sakshyam/docker-images/corren:latest
+        container_name: correlation-engine
+        network_mode: host
+
+        ports:
+            - 7072:7072

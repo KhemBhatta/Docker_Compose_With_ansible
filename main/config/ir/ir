@@ -1,0 +1,41 @@
+#ENVIRONMENT=dev
+ENVIRONMENT=prod
+
+#CLient Info
+CLIENT=client_name
+CLIENT_CODE=client_code
+
+#Elasticsearch Config
+ES_CONNECTION_PROTOCOL=http
+ES_HOST=elasticsearch
+ES_PORT=9200
+ES_CREDENTIAL='irpass'
+ES_REQUEST_TIMEOUT=30000
+ES_MAX_RETRIES=10
+
+INDEX_NAME=incident_response
+INDEX_VERSION=.incident_response_version
+
+#App config
+APP_ID=incident-response-back-end
+HOST_IP=0.0.0.0
+PORT=7070
+LOG_LEVEL=debug
+REQUEST_LIMIT=100kb
+SESSION_SECRET=mySecret
+BACKEND_PROTOCOL=http
+
+#Swagger
+SWAGGER_API_SPEC=/api/v1/spec
+SWAGGER_USER=elastic
+
+#Authentication secret
+#API_Secret=b011070ac69e5f3e1f4ab80843617070
+API_Secret=irsecret
+#Kafka config
+KAFKA_HOST=kafka
+KAFKA_PORT=9092
+KAFKA_TOPIC=incident-response-alert
+KAFKA_AUTH=true
+KAFKA_USERNAME=user
+KAFKA_PASSWORD=password

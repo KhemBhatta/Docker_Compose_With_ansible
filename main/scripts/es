@@ -1,0 +1,8 @@
+#!/bin/bash
+echo -n "Elasticsearch-Conatiner-Name: " 
+read $REPLY
+docker exec -it $REPLY bash ./bin/elasticsearch-setup-passwords interactive #!/bin/bash
+echo -n "Elasticsearch-Conatiner-Name: " 
+read $REPLY
+docker exec -it $REPLY bash ./bin/elasticsearch-setup-passwords interactive
+
